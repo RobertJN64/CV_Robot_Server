@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Robot Programming</title>
+    <script src="static/codemirror/lib/codemirror.js"></script>
+    <link rel="stylesheet" href="static/codemirror/lib/codemirror.css">
+    <script src="static/codemirror/mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="static/codemirror/theme/darcula.css">
+    <script src="static/codemirror/mode/python/python.js"></script>
+    <script src="static/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="static/jquery.js"></script>
+    <style>
+        body {
+          background-color: black;
+        }
+
+        h1 {
+          margin-block-start: 0.2em;
+          margin-block-end: 0.2em;
+          color: white;
+        }
+
+        h2 {
+          margin-block-start: 0.2em;
+          margin-block-end: 0.2em;
+          color: white;
+        }
+
+        p {
+          color: white;
+        }
+
+        input {
+          color: white;
+        }
+
+        .roundedDiv {
+          border-color: white;
+          border-radius: 5px;
+          border-style: solid;
+          padding: 5px;
+          margin: 5px;
+          display: inline-block;
+        }
+
+        .nice_button {
+          border: none;
+          color: white;
+          padding: 10px 20px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+          border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div style="display: inline-block; width: 50%">
+    <div id="FileUpload" class="roundedDiv" style="width: 100%">
+        <h1>Robot Programming</h1>
+        <p class="p">Upload a file, or start typing below!</p>
+        <form method=post enctype=multipart/form-data>
+            <input id="file" type=file name=file>
+        </form>
+    </div>
+    <div id="FileContents" class="roundedDiv" style="width: 100%">
+        <textarea readonly rows="20" cols="75" id="filetext"></textarea>
+        <p>
+          <button class="nice_button" onclick="downloadCode()" style="background-color: green;">&#9654 Run on robot!</button>
+          <button class="nice_button" onclick="stop()" style="background-color: red;">&#128721 Stop!</button>
+      </p>
+    </div>
+</div>
+<div style="width:43%; float:right">
+    <div class="roundedDiv" style="width:90%">
+        <h2>Prints:</h2>
+        <textarea readonly rows="15" cols="50" id="printtext"></textarea>
+    </div>
+    <div class="roundedDiv" style="width:90%">
+        <h2>Last error:</h2>
+        <textarea readonly rows="10" cols="50" id="traceback"></textarea>
+    </div>
+</div>
+</body>
+
+<script>
+    document.getElementById('file').addEventListener('change', getFile);
+    var codearea = document.getElementById('filetext')
+    var filename = ".py"
+    var CM = CodeMirror.fromTextArea(codearea,
+        {
+            lineNumbers: true,
+            theme: "darcula",
+            mode: {name: "python",
+               version: 3,
+               singleLineStringErrors: false},
+            indentUnit: 4,
+            matchBrackets: true
+        });
+
+    CM.setValue('#Your code here...')
+
+
+    function getFile(event) {
+        const input = event.target
+      if ('files' in input && input.files.length > 0) {
+          filename = input.files[0].name
+          placeFileContent(
+          CM,
+          input.files[0])
+      }
+    }
+
+    function placeFileContent(target, file) {
+        readFileContent(file).then(content => {
+        target.setValue(content)
+      }).catch(error => console.log(error))
+    }
+
+    function readFileContent(file) {
+        const reader = new FileReader()
+        return new Promise((resolve, reject) => {
+            reader.onload = event => resolve(event.target.result)
+            reader.onerror = error => reject(error)
+            reader.readAsText(file)
+        })
+    }
+
+    function stop() {
+      $.get('/stopPython')
+      window.setTimeout(getPrints, 500)
+      window.setTimeout(getTraceback, 500)
+    }
+
+    function runCode() {
+      $.get('/runPython')
+      window.setTimeout(getPrints, 500)
+      window.setTimeout(getTraceback, 500)
+    }
+
+    function getTraceback() {
+      $.get('/traceback', {}, function(data) {
+      if (data != "") {
+      if (data != "Blockly was started on the robot. Please reboot to use full functionality.") {
+      document.getElementById("traceback").value = data
+      alert(data) }
+      else { if (document.getElementById('traceback').value == "") {document.getElementById('traceback').value = data}}
+}
+    })
+    }
+
+    window.setInterval(getTraceback, 5000);
+    getTraceback()
+
+    function getPrints() {
+      $.get('/prints', {}, function(data) {
+      document.getElementById("printtext").value = data
+    })
+    }
+
+    window.setInterval(getPrints, 5000);
+    getPrints()
+
+    function downloadCode() {
+      var file = new Blob([CM.getValue()]);
+      var data = new FormData();
+      data.append('file', file, '.py');
+      document.getElementById("traceback").value = ""
+      $.ajax({
+            type: 'POST',
+            url: '/uploadPython',
+            data: data,
+            contentType: false,
+            processData: false,
+            success: runCode,
+        });
+    }
+</script>
+</html>
