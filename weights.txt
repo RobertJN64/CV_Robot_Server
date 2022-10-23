@@ -1,0 +1,1 @@
+C:\Users\rober\PycharmProjects\CV_Robot_Server\venv\Lib\site-packages\CV_Robot\Models\Yolo v3

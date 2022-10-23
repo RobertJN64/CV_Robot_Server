@@ -36,7 +36,6 @@ def runUserScript(tb):
             file.write("---SCRIPT STARTING---\n")
         swapTabSpace("userscripts/UserScript.py")
         import userscripts.UserScript
-        #code.main(eh)
         with open("userscripts/printlog.txt", "a") as f:
             f.write("---SCRIPT FINISHED---\n")
 

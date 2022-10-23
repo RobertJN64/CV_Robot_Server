@@ -58,7 +58,8 @@ def stopScript():
 #endregion
 
 def startFlask():
-    app.run(host="0.0.0.0", port=80, ssl_context='adhoc') #try to auto gen?
+    app.run(host="localhost", port=80)  # for testing
+    #app.run(host="0.0.0.0", port=80, ssl_context='adhoc') #try to auto gen?
 
 if __name__ == '__main__':
     startFlask()

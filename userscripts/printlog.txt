@@ -1,2 +1,19 @@
 ---SCRIPT STARTING---
----ERROR---
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+[]
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['PERSON']
+['STOP_SIGN']
+---SCRIPT FINISHED---
