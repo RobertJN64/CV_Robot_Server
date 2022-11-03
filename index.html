@@ -84,6 +84,10 @@
       <textarea readonly rows="15" cols="50" id="printtext"></textarea>
     </div>
     <div class="roundedDiv" style="width:90%">
+      <h2>Image:</h2>
+      <img id="cam_image" src="cam_image", width="400px;">
+    </div>
+    <div class="roundedDiv" style="width:90%">
       <h2>Last error:</h2>
       <textarea readonly rows="10" cols="50" id="traceback"></textarea>
     </div>
@@ -185,6 +189,13 @@
       success: runCode,
     });
   }
+
+  var num = 0;
+  function reload_img() {
+    document.getElementById("cam_image").src = `cam_image?id=${num}`;
+    num += 1
+  }
+  setInterval(reload_img, 1000);
 </script>
 
 </html>

@@ -4,7 +4,14 @@ from os import getcwd
 import multiprocessing
 import pyexecutor as PE
 from time import sleep
-#import json
+import shutil
+
+def reset_image():
+    shutil.copy("userscripts/cv_robot_bk.png", "userscripts/cv_robot_img.png")
+    with open('userscripts/img.lck', 'w+') as f:
+        f.write("")
+with open('userscripts/printlog.txt', 'w+') as f:
+    f.write("")
 
 UPLOAD_FOLDER = getcwd() + '/userscripts/'
 
@@ -27,6 +34,11 @@ def upload():
 def runScript():
     global lastTB
     global process
+
+    if process.is_alive():
+        process.terminate()
+        process.join()
+
     manager = multiprocessing.Manager()
     lastTB = manager.list()
     process = multiprocessing.Process(target=PE.runUserScript, args=(lastTB,))
@@ -54,7 +66,18 @@ def stopScript():
         with open("userscripts/printlog.txt", "a") as file:
             file.write("---SCRIPT STOPPED---\n")
     sleep(0.1)
+    reset_image()
     return "Code stopped."
+
+@app.route("/cam_image")
+def cam_image():
+    while True:
+        with open('userscripts/img.lck') as f:
+            if 'lck' in f.read():
+                sleep(0.1)
+            else:
+                break
+    return send_file("userscripts/cv_robot_img.png")
 #endregion
 
 def startFlask():
