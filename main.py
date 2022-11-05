@@ -8,8 +8,9 @@ import shutil
 
 def reset_image():
     shutil.copy("userscripts/cv_robot_bk.png", "userscripts/cv_robot_img.png")
-    with open('userscripts/img.lck', 'w+') as f:
-        f.write("")
+    with open('userscripts/img.lck', 'w+') as file:
+        file.write("")
+
 with open('userscripts/printlog.txt', 'w+') as f:
     f.write("")
 
@@ -54,8 +55,8 @@ def getTraceback():
 
 @app.route("/prints")
 def getPrints():
-    with open("userscripts/printlog.txt") as f:
-        lines = f.readlines()
+    with open("userscripts/printlog.txt") as file:
+        lines = file.readlines()
     return ''.join(lines)
 
 @app.route("/stopPython")
@@ -72,8 +73,8 @@ def stopScript():
 @app.route("/cam_image")
 def cam_image():
     while True:
-        with open('userscripts/img.lck') as f:
-            if 'lck' in f.read():
+        with open('userscripts/img.lck') as file:
+            if 'lck' in file.read():
                 sleep(0.1)
             else:
                 break
@@ -81,8 +82,7 @@ def cam_image():
 #endregion
 
 def startFlask():
-    app.run(host="localhost", port=80)  # for testing
-    #app.run(host="0.0.0.0", port=80, ssl_context='adhoc') #try to auto gen?
+    app.run(host="localhost", port=80)
 
 if __name__ == '__main__':
     startFlask()
