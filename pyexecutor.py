@@ -2,6 +2,23 @@ import traceback
 from flask import flash
 from os import getcwd, path
 from time import sleep
+import requests
+
+try:
+    from CONFIG_CV_ROBOT import robot_URL
+
+    is_Robot = True
+except ImportError:
+    robot_URL = "0.0.0.0"
+    is_Robot = False
+
+def stop_robot():
+    if is_Robot:
+        try:
+            requests.get('http://' + robot_URL + '/stop')
+        except (Exception,):
+            with open("userscripts/printlog.txt", "a") as f:
+                f.write("---COULD NOT STOP ROBOT---\n")
 
 ALLOWED_EXTENSIONS = {'py'}
 
@@ -29,6 +46,7 @@ def swapTabSpace(file):
         f.write("from time import sleep\n")
         f.write("from printlog import printlog as print\n")
         f.writelines(lines)
+        f.write("\nrobot.stop()")
 
 def runUserScript(tb):
     try:
@@ -52,6 +70,7 @@ def runUserScript(tb):
             print("Error. Demo script not found.")
             tb.append("Error. No script found. Try redownloading, or this might be an internal server issue.")
     except (Exception,):
+        stop_robot()
         with open("userscripts/printlog.txt", "a") as f:
             f.write("---ERROR---\n")
         print("Error in user script:")

@@ -68,6 +68,7 @@ def stopScript():
             file.write("---SCRIPT STOPPED---\n")
     sleep(0.1)
     reset_image()
+    PE.stop_robot()
     return "Code stopped."
 
 @app.route("/cam_image")
