@@ -1,16 +1,34 @@
 import flask
 from flask import request
+import threading
 import json
 
-app = flask.Flask(__name__)
+class B_VideoCapture:
+    def __init__(self, name):
+        self.cap = cv2.VideoCapture(name)
+        self.t = threading.Thread(target=self._reader)
+        self.t.daemon = True
+        self.t.start()
 
-# noinspection PyUnresolvedReferences
-from picamera.array import PiRGBArray
-# noinspection PyUnresolvedReferences
-from picamera import PiCamera
-robot_camera = PiCamera()
-robot_camera.resolution = (320,320)
-robot_RawCap = PiRGBArray(robot_camera)
+    # grab frames as soon as they are available
+    def _reader(self):
+        while True:
+            ret = self.cap.grab()
+            if not ret:
+                break
+
+    # retrieve latest frame
+    def read(self):
+        self.cap.grab()
+        ret, frame = self.cap.retrieve()
+        return frame
+
+app = flask.Flask(__name__)
+import cv2
+cam = B_VideoCapture(0)
+
+# bufferless VideoCapture
+
 
 # noinspection PyUnresolvedReferences
 import explorerhat as eh
@@ -22,10 +40,9 @@ def home():
     return "OK"
 
 @app.route('/get_camera_array')
-def cam():
-    robot_camera.capture(robot_RawCap, format="bgr")
-    arr = robot_RawCap.array
-    robot_RawCap.truncate(0)
+def get_camera_array():
+    arr = cam.read()
+    arr = cv2.resize(arr, (320,320))
     return json.dumps(arr.tolist())
 
 
