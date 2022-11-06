@@ -1,6 +1,7 @@
 import flask
 from flask import request
 import threading
+import base64
 import json
 
 class B_VideoCapture:
@@ -41,9 +42,16 @@ def home():
 
 @app.route('/get_camera_array')
 def get_camera_array():
-    arr = cam.read()
-    arr = cv2.resize(arr, (320,320))
-    return json.dumps(arr.tolist())
+    img = cam.read()
+    img = cv2.resize(img, (320,320))
+    return json.dumps(img.tolist())
+
+@app.route('/get_camera_array_fast')
+def get_camera_array_fast():
+    img = cam.read()
+    img = cv2.resize(img, (320,320))
+    _, buf = cv2.imencode('.jpg', img)
+    return base64.b64encode(buf)
 
 
 FORWARD = 1
