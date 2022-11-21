@@ -63,11 +63,11 @@ class Robot:
 
             if self.gyro_correction_active:
                 if self.angle < -2:
-                    self.l_speed_mul *= self.MUL_INC
-                    self.r_speed_mul *= self.MUL_DEC
+                    self.l_speed_mul = max(0.8, self.l_speed_mul * self.MUL_INC * abs(self.angle)/10)
+                    self.r_speed_mul = min(1.2, self.r_speed_mul * self.MUL_DEC * abs(self.angle)/10)
                 elif self.angle > 2:
-                    self.r_speed_mul *= self.MUL_INC
-                    self.l_speed_mul *= self.MUL_DEC
+                    self.r_speed_mul = max(0.8, self.r_speed_mul * self.MUL_INC * abs(self.angle)/10)
+                    self.l_speed_mul = min(1.2, self.l_speed_mul * self.MUL_DEC * abs(self.angle)/10)
 
             self._update_motors()
 
