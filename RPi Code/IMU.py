@@ -1,6 +1,6 @@
 from time import sleep, time
 
-scale_f = 0.8
+scale_f = 1
 
 # some MPU6050 Registers and their Address
 PWR_MGMT_1 = 0x6B
@@ -72,11 +72,10 @@ class IMU:
 
     def read(self):
         gyro_z = self.read_raw_data(GYRO_ZOUT_H)
-        print(gyro_z)
         # Full scale range +/- 250 degree/C as per sensitivity scale factor
         Gz = (gyro_z / 131.0) * scale_f
         self.gyrototal -= ((Gz - self.drift) / 20) * 10
-        sleep(0.05 - (time() - self.last_read_time))
+        sleep(max(0.0, 0.05 - (time() - self.last_read_time)))
         self.last_read_time = time()
 
         return self.gyrototal

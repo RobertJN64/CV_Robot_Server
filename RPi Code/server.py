@@ -54,6 +54,7 @@ def get_camera_array_fast():
 def forward():
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = FORWARD
     return "OK"
@@ -62,6 +63,7 @@ def forward():
 def forward_gyro():
     reset_imu()
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = FORWARD
     robot.gyro_correction_active = True
@@ -71,6 +73,7 @@ def forward_gyro():
 def backward():
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = REVERSE
     robot.r_motor_dir = REVERSE
     return "OK"
@@ -79,6 +82,7 @@ def backward():
 def left():
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = REVERSE
     robot.r_motor_dir = FORWARD
     return "OK"
@@ -88,6 +92,7 @@ def left_angle():
     reset_imu()
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = REVERSE
     robot.r_motor_dir = FORWARD
     robot.target_angle = -int(request.args.get("angle"))
@@ -98,6 +103,7 @@ def left_angle():
 def right():
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = REVERSE
     return "OK"
@@ -107,6 +113,7 @@ def right_angle():
     reset_imu()
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = REVERSE
     robot.target_angle = int(request.args.get("angle"))
@@ -117,6 +124,7 @@ def right_angle():
 def stop():
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
+    robot.l_speed_mul = 1
     robot.l_motor_dir = STOP
     robot.r_motor_dir = STOP
     return "OK"
@@ -149,6 +157,11 @@ def calibrate_imu():
         pass
     robot.imu.calibrate()
     robot.pause_control_loop = False
+    return "OK"
+
+@app.route('/set_calib_factor')
+def set_calib_factor():
+    robot.set_calib_factor(float(request.args.get("v")))
     return "OK"
 
 @app.route('/angle')
