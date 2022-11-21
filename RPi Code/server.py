@@ -4,6 +4,9 @@ import threading
 import base64
 import json
 
+from robot import Robot, FORWARD, STOP, REVERSE
+robot = Robot()
+
 class B_VideoCapture:
     def __init__(self, name):
         self.cap = cv2.VideoCapture(name)
@@ -28,14 +31,6 @@ app = flask.Flask(__name__)
 import cv2
 cam = B_VideoCapture(0)
 
-# bufferless VideoCapture
-
-
-# noinspection PyUnresolvedReferences
-import explorerhat as eh
-l_motor = eh.motor.one
-r_motor = eh.motor.two
-
 @app.route('/')
 def home():
     return "OK"
@@ -54,65 +49,118 @@ def get_camera_array_fast():
     return base64.b64encode(buf)
 
 
-FORWARD = 1
-STOP = 0
-REVERSE = -1
-
-target_drive_speed = 75
-l_motor_dir = STOP
-r_motor_dir = STOP
-
-def _update_motors():
-    l_motor.speed(target_drive_speed * l_motor_dir)
-    r_motor.speed(target_drive_speed * r_motor_dir)
-
 @app.route('/forward')
 def forward():
-    global l_motor_dir, r_motor_dir
-    l_motor_dir = FORWARD
-    r_motor_dir = FORWARD
-    _update_motors()
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = FORWARD
+    robot.r_motor_dir = FORWARD
+    return "OK"
+
+@app.route('/forward_gyro')
+def forward_gyro():
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = FORWARD
+    robot.r_motor_dir = FORWARD
+    robot.gyro_correction_active = True
     return "OK"
 
 @app.route('/backward')
 def backward():
-    global l_motor_dir, r_motor_dir
-    l_motor_dir = REVERSE
-    r_motor_dir = REVERSE
-    _update_motors()
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = REVERSE
+    robot.r_motor_dir = REVERSE
     return "OK"
 
 @app.route('/left')
 def left():
-    global l_motor_dir, r_motor_dir
-    l_motor_dir = REVERSE
-    r_motor_dir = FORWARD
-    _update_motors()
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = REVERSE
+    robot.r_motor_dir = FORWARD
+    return "OK"
+
+@app.route('/left_angle')
+def left_angle():
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = REVERSE
+    robot.r_motor_dir = FORWARD
+    robot.target_angle = -int(request.args.get("angle"))
+    robot.l_turn_active = True
     return "OK"
 
 @app.route('/right')
 def right():
-    global l_motor_dir, r_motor_dir
-    l_motor_dir = FORWARD
-    r_motor_dir = REVERSE
-    _update_motors()
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = FORWARD
+    robot.r_motor_dir = REVERSE
+    return "OK"
+
+@app.route('/right_angle')
+def right_angle():
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = FORWARD
+    robot.r_motor_dir = REVERSE
+    robot.target_angle = int(request.args.get("angle"))
+    robot.r_turn_active = True
     return "OK"
 
 @app.route('/stop')
 def stop():
-    global l_motor_dir, r_motor_dir
-    print("Stopping robot...")
-    l_motor_dir = STOP
-    r_motor_dir = STOP
-    _update_motors()
+    robot.gyro_correction_active = False
+    robot.r_speed_mul = 1
+    robot.l_motor_dir = STOP
+    robot.r_motor_dir = STOP
     return "OK"
+
+@app.route('/done')
+def done():
+    if robot.l_turn_active or robot.r_turn_active:
+        return "BUSY"
+    else:
+        return "OK"
 
 @app.route('/speed')
 def speed():
-    global target_drive_speed
-    target_drive_speed = int(request.args.get('val'))
-    _update_motors()
+    robot.target_drive_speed = int(request.args.get('val'))
     return "OK"
+
+@app.route('/reset')
+def reset_imu():
+    robot.pause_control_loop = True
+    while not robot.pause_ack:
+        pass
+    robot.imu.gyrototal = 0
+    robot.pause_control_loop = False
+    return "OK"
+
+@app.route('/calibrate')
+def calibrate_imu():
+    robot.pause_control_loop = True
+    while not robot.pause_ack:
+        pass
+    robot.imu.calibrate()
+    robot.pause_control_loop = False
+    return "OK"
+
+@app.route('/angle')
+def angle():
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    
+    <head>
+      <meta charset="UTF-8">
+      <title>Angle</title>
+      <script>
+        function reload() { location.reload() }
+        setTimeout(reload, 500);
+      </script>
+    </head>
+    
+    <body>
+      <p>""" + str(robot.angle) + """</p>
+    </body>
+    </html>
+    """
 
 def startFlask():
     app.run(host="0.0.0.0", port=80)

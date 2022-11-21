@@ -8,7 +8,10 @@ import shutil
 
 def reset_image():
     shutil.copy("userscripts/cv_robot_bk.png", "userscripts/cv_robot_img.png")
+    shutil.copy("userscripts/cv_robot_bk.png", "userscripts/saved_image.png")
     with open('userscripts/img.lck', 'w+') as file:
+        file.write("")
+    with open('userscripts/s_img.lck', 'w+') as file:
         file.write("")
 
 with open('userscripts/printlog.txt', 'w+') as f:
@@ -80,9 +83,20 @@ def cam_image():
             else:
                 break
     return send_file("userscripts/cv_robot_img.png")
+
+@app.route("/saved_image")
+def saved_image():
+    while True:
+        with open('userscripts/s_img.lck') as file:
+            if 'lck' in file.read():
+                sleep(0.1)
+            else:
+                break
+    return send_file("userscripts/saved_image.png")
 #endregion
 
 def startFlask():
+    reset_image()
     app.run(host="localhost", port=80)
 
 if __name__ == '__main__':
