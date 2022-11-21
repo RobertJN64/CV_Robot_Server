@@ -15,7 +15,7 @@ class Robot:
     def __init__(self):
         self.l_motor_dir = STOP
         self.r_motor_dir = STOP
-        self.target_drive_speed = 75
+        self.target_drive_speed = 50
 
         self.r_speed_mul = 1
         self.l_speed_mul = 1
