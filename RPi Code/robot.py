@@ -20,6 +20,7 @@ class Robot:
         self.r_speed_mul = 1
 
         self.imu = IMU()
+        self.imu.init()
         self.imu.calibrate()
         self.angle = 0
 
@@ -36,30 +37,31 @@ class Robot:
         r_motor.speed(self.target_drive_speed * self.r_motor_dir * self.r_speed_mul)
 
     def update_loop(self):
-        self.angle = self.imu.read()
-        if self.l_turn_active:
-            if self.angle <= self.target_angle:
-                self.l_motor_dir = STOP
-                self.r_motor_dir = STOP
-                self.l_turn_active = False
+        while True:
+            self.angle = self.imu.read()
+            if self.l_turn_active:
+                if self.angle <= self.target_angle:
+                    self.l_motor_dir = STOP
+                    self.r_motor_dir = STOP
+                    self.l_turn_active = False
 
-        if self.r_turn_active:
-            if self.angle >= self.target_angle:
-                self.l_motor_dir = STOP
-                self.r_motor_dir = STOP
-                self.r_turn_active = False
+            if self.r_turn_active:
+                if self.angle >= self.target_angle:
+                    self.l_motor_dir = STOP
+                    self.r_motor_dir = STOP
+                    self.r_turn_active = False
 
-        if self.gyro_correction_active:
-            if self.angle > 2:
-                self.r_speed_mul *= MUL_DEC
-            elif self.angle < 2:
-                self.r_speed_mul *= MUL_INC
+            if self.gyro_correction_active:
+                if self.angle > 2:
+                    self.r_speed_mul *= MUL_DEC
+                elif self.angle < 2:
+                    self.r_speed_mul *= MUL_INC
 
-        self._update_motors()
+            self._update_motors()
 
-        if self.pause_control_loop:
-            self.pause_ack = True
-            while self.pause_control_loop:
-                pass
-            self.pause_ack = False
+            if self.pause_control_loop:
+                self.pause_ack = True
+                while self.pause_control_loop:
+                    pass
+                self.pause_ack = False
 

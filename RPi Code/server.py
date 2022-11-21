@@ -6,6 +6,7 @@ import json
 
 from robot import Robot, FORWARD, STOP, REVERSE
 robot = Robot()
+threading.Thread(target=robot.update_loop).start()
 
 class B_VideoCapture:
     def __init__(self, name):
@@ -51,6 +52,7 @@ def get_camera_array_fast():
 
 @app.route('/forward')
 def forward():
+    robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = FORWARD
@@ -66,6 +68,7 @@ def forward_gyro():
 
 @app.route('/backward')
 def backward():
+    robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = REVERSE
     robot.r_motor_dir = REVERSE
@@ -73,6 +76,7 @@ def backward():
 
 @app.route('/left')
 def left():
+    robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = REVERSE
     robot.r_motor_dir = FORWARD
@@ -80,6 +84,7 @@ def left():
 
 @app.route('/left_angle')
 def left_angle():
+    robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = REVERSE
     robot.r_motor_dir = FORWARD
@@ -89,6 +94,7 @@ def left_angle():
 
 @app.route('/right')
 def right():
+    robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = REVERSE
@@ -96,6 +102,7 @@ def right():
 
 @app.route('/right_angle')
 def right_angle():
+    robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = REVERSE
