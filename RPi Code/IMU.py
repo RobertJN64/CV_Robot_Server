@@ -72,6 +72,7 @@ class IMU:
 
     def read(self):
         gyro_z = self.read_raw_data(GYRO_ZOUT_H)
+        print(gyro_z)
         # Full scale range +/- 250 degree/C as per sensitivity scale factor
         Gz = (gyro_z / 131.0) * scale_f
         self.gyrototal -= ((Gz - self.drift) / 20) * 10

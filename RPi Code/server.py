@@ -60,6 +60,7 @@ def forward():
 
 @app.route('/forward_gyro')
 def forward_gyro():
+    reset_imu()
     robot.r_speed_mul = 1
     robot.l_motor_dir = FORWARD
     robot.r_motor_dir = FORWARD
@@ -84,6 +85,7 @@ def left():
 
 @app.route('/left_angle')
 def left_angle():
+    reset_imu()
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = REVERSE
@@ -102,6 +104,7 @@ def right():
 
 @app.route('/right_angle')
 def right_angle():
+    reset_imu()
     robot.gyro_correction_active = False
     robot.r_speed_mul = 1
     robot.l_motor_dir = FORWARD
